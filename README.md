@@ -1,15 +1,21 @@
-## Welcome to My GitHub Pages
 
-### My repositories
+# My Project:
 
-My project:
+### stock
 
-- [stock](https://github.com/zhujunan/stock)
+[Link to stock repository](https://github.com/zhujunan/stock).
 
+Try to analyze stock data, design quantitative trading strategies, and call the API to execute transactions
 
-Learning Notes:
+*   start time   : 2022/12
+*   last updated : 2022/12
+*   state        : begining
 
-- [algorithm](https://github.com/zhujunan/fucking-algorithm)
+# My Learning Notes:
+
+### algorithm
+
+[Link to algorithm repository](https://github.com/zhujunan/fucking-algorithm)
 
 
 
