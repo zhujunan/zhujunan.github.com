@@ -1,4 +1,8 @@
 
+---
+layout: default
+---
+
 Here is what I have done to realize my dream.Keep on going never give up!
 
 # My Project:
