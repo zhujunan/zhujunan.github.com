@@ -1,4 +1,23 @@
-https://platform.openai.com/docs/introduction/overview
+# https://platform.openai.com/docs/introduction/overview
+# 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
+# 温度是一个介于 0 和 1 之间的值，基本上可以让您控制模型在进行这些预测时的置信度。降低温度意味着它将承担更少的风险，并且完成将更加准确和确定。升高温度将导致更多样化的完成。
+  
+  
+# text-davinci-003
+# text-curie-001	
+# text-babbage-001	
+# text-ada-001
+# code-davinci-002
+# code-cushman-001
+
+
+401 - 无效的身份验证
+401 - 提供的 API 密钥不正确
+401 - 您必须是组织的成员才能使用 API
+429 - 达到请求的速率限制
+429 - 您超出了当前配额，请检查您的计划和账单明细
+429 - 引擎当前超载，请稍后再试
+
 
 # 将文本转换为编程命令。
 import os
