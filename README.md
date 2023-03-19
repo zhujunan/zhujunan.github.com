@@ -30,7 +30,7 @@ Try to analyze stock data, design quantitative trading strategies, and call the 
 
 ****
 
-# memo
+# memo:
 
  * [各类工具网站](tools.md)
 
