@@ -24,3 +24,16 @@ Try to analyze stock data, design quantitative trading strategies, and call the 
 
  * [Markdown笔记](https://github.com/zhujunan/Note/blob/master/others/markdown%E7%AC%94%E8%AE%B0.md)
 
+# memo
+
+ [各类工具网站](tools.md)
+
+
+
+
+
+
+
+
+
+
