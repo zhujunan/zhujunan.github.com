@@ -88,8 +88,7 @@ ls -lR| grep "^-" | wc -l
 rm -f `ls | grep -irn "XXXXXXXX" -l`
 
 批量删除文件
-find -name "*.dot" -exec rm -f '{}' \
-find ./ -name "*.pyc" | xargs rm
+find ./ -name "*.pyc" | xargs rm -r
 
 ```
 
