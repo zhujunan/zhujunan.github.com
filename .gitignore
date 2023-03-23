@@ -1,11 +1,4 @@
 ## Ignore temporary files, build results, and other useless files.
 
-# User-specific files
-/data/*
-
-# Build results
-build/
-
 # Python/Pycharm cache/options directory
-**/__pycache__/
 .idea/

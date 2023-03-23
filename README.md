@@ -14,25 +14,25 @@ Try to analyze stock data, design quantitative trading strategies, and call the 
 
 ****
 
-# [My Learning Notes](https://github.com/zhujunan/Note):
+# [My Learning Notes](/study_notes):
 
 ### Python
 
 ### others
 
- * [Conda笔记](/others/conda笔记.md)
+* [Conda笔记](/study_notes/others/conda_notes.md)
 
- * [git笔记](/others/git%E7%AC%94%E8%AE%B0.md)
+* [git笔记](/study_notes/others/git_notes.md)
 
- * [linux笔记](/others/linux%E7%AC%94%E8%AE%B0.md)
+* [linux笔记](/study_notes/others/linux_notes.md)
 
- * [Markdown笔记](/others/markdown%E7%AC%94%E8%AE%B0.md)
+* [Markdown笔记](/study_notes/others/markdown_notes.md)
 
 ****
 
 # memo:
 
- * [各类工具网站](tools.md)
+* [各类工具网站](/memo/websites.md)
 
 
 
