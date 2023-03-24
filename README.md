@@ -20,19 +20,19 @@ Try to analyze stock data, design quantitative trading strategies, and call the 
 
 ### others
 
-* [conda笔记](/study_notes/others/conda_notes.md)
+* [conda notes](/study_notes/others/conda_notes.md)
 
-* [git笔记](/study_notes/others/git_notes.md)
+* [git notes](/study_notes/others/git_notes.md)
 
-* [linux笔记](/study_notes/others/linux_notes.md)
+* [linux notes](/study_notes/others/linux_notes.md)
 
-* [markdown笔记](/study_notes/others/markdown_notes.md)
+* [markdown notes](/study_notes/others/markdown_notes.md)
 
 ****
 
 # memo:
 
-* [各类工具网站](/memo/websites.md)
+* [websites](/memo/websites.md)
 
 
 
