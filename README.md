@@ -1,10 +1,12 @@
-Here is what I have done to realize my dream.Keep on going never give up!
+zhujunan.github.com
 
 ****
 
-# My Project:
+# Projects:
 
-### [stock](https://github.com/zhujunan/stock)
+### stock
+
+[link_to_stock](https://github.com/zhujunan/stock)
 
 Try to analyze stock data, design quantitative trading strategies, and call the API to execute transactions
 
@@ -14,9 +16,11 @@ Try to analyze stock data, design quantitative trading strategies, and call the 
 
 ****
 
-# [My Learning Notes](/study_notes):
+# Learning Notes:
 
-### Python
+### python
+
+### c
 
 ### others
 
@@ -30,7 +34,7 @@ Try to analyze stock data, design quantitative trading strategies, and call the 
 
 ****
 
-# memo:
+# Memo:
 
 * [websites](/memo/websites.md)
 

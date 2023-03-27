@@ -2,10 +2,10 @@ git笔记
 
 ***
 
-* workspace            工作区
-* staging area         暂存区
-* local repository     本地仓库
-* remote repository    远程仓库
+* workspace 工作区
+* staging area 暂存区
+* local repository 本地仓库
+* remote repository 远程仓库
 
 # git 配置信息
 
@@ -48,7 +48,7 @@ git checkout -b branchname   # 创建新分支
 git checkout -t branchname   # 切换到远程分支
 ```
 
-* git merge 
+* git merge
 
 ```
 git merge branchname         # 将分支合并到主分支中
