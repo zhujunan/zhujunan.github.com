@@ -1,21 +1,28 @@
+学习计划：
 
-```
+1.（7天） 爬虫scrapy、requests、re、xpath、lxml
 
-数据文件，第一列索引改掉，不要随机
+获取雪球等论坛文章
 
-pandas.DataFrame.tail(n)来获取DataFrame的最后n行
+2. （14天）股市框架
 
-pandas.DataFrame.head(n)来获取DataFrame的最前n行
+确认是自己造轮子还是采用现成的，例如qlib等
 
-for i in df.itertuples():
-    print(i)
-    print(tuple(i))
+3. （2天）阅读行业研报等
 
-import csv
+4. （20天）机器学习算法，LSTM、SVM、XGboost、特征工程、GBDT、决策树
+强化学习算法，DQN，DDPG，PPO，A3C 模仿学习，分层强化学习，多智能体
 
-with open("test.csv","w",newline='') as csvfile:
-    writer = csv.writer(csvfile)
-    write.writerow([0,1,2])
+5.（20天） 股票模型，多因子股票模型、CTA量化模型、套利策略、alpha策略、趋势策略
 
-```
-   
+6. （7天）数学理论知识，统计建模、多元回归、时间序列分析
+
+7.（5天） 量化对冲：包括基差管理、期指展期、两融交易
+
+合计：75天
+
+开始：5月11日
+
+结束：7月15日
+
+时间不充裕，必须提前完成
