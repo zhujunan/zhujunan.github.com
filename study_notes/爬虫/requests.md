@@ -35,14 +35,6 @@ Authorization               (用于表示HTTP协议中需要认证资源的认�
 
 ```
 
-其它反爬措施：
-
-验证码
-
-JS渲染页面：模拟javascript或抓ajax本身
-
-基于请求频率或总请求数量封ip
-
 * 带参数的请求
 
 ```
@@ -52,14 +44,76 @@ response = requests.get(url, headers=headers, params=kw)
 
 等价于访问 ’https://www.baidu.com/s?wd=python’
 
+* 带代理的请求
+
+```
+proxies = {
+  "http": "http://10.10.1.10:3128",
+  "https": "http://10.10.1.10:1080",
+}
+
+requests.get("http://example.org", proxies=proxies)
+```
+
+### cookies
+
+* 获取cookies
+
+response.cookies
+
+* 发送cookies
+
+```
+cookies = {"cookie_name": "cookie_value", }
+response = requests.get("https://www.baidu.com", cookies=cookies)
+```
+
+更专业的方式是先实例化一个RequestCookieJar的类，然后把值set进去，最后在get,post方法里面指定cookies参数
+
+```
+import requests
+from requests.cookies import RequestsCookieJar
+cookie_jar = RequestsCookieJar()
+cookie_jar.set("BAIDUID", "4EDT7A5263775F7E0A4B&F330724:FG=1", domain="baidu.com")
+response = requests.get("https://fanyi.baidu.com/", cookies=cookie_jar)
+```
+
+### 反爬措施：
+
+验证码
+
+验证请求头
+
+JS渲染页面：模拟javascript或抓ajax本身
+
+基于请求频率或总请求数量封ip
+
+### Session会话
+
+session对象能够帮我们跨请求保持某些参数，也会在同一个session实例发出的所有请求之间保持cookies。为了保持会话的连续，我们最好的办法是先创建一个session对象，用其打开一个url, 而不是直接使用requests.get方法打开一个url。每当我们使用这个session对象重新打开一个url时，请求头都会带上首次产生的cookie，实现了会话的延续。
+
+```
+import requests
 
 
+headers = {
+    "content-type": "application/x-www-form-urlencoded;charset=UTF-8",
+    "User-Agent" : "Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9.1.6) ",
+}
 
+#设置一个会话session对象s
+s = requests.session()
+resp = s.get('https://www.baidu.com/s?wd=python', headers=headers)
+# 打印请求头和cookies
+print(resp.request.headers)
+print(resp.cookies)
 
+# 利用s再访问一次
+resp = s.get('https://www.baidu.com/s?wd=python', headers=headers)
 
-
-
-
-
+# 请求头已保持首次请求后产生的cookie
+print(resp.request.headers)
+print(resp.cookies)
+```
 
 
