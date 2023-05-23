@@ -9,17 +9,17 @@ requests.head(url)        # HEAD请求
 requests.options(url)     # OPTIONS请求
 ```
 
+### response属性
+
+```
+r.status_code             # HTTP请求的返回状态，200表示连接成功，404表示失败
+r.text                    # HTTP响应内容的字符串形式，即，url对应的页面内容
+r.encoding                # 从HTTP header中猜测的响应内容编码方式
+r.apparent_encoding       # 从内容中分析出的响应内容编码方式（备选编码方式）
+r.content                 # HTTP响应内容的二进制形式
+```
+
 ### 带附加信息的请求
-
-* 带 headers 的请求
-
-```
-headers = {"user-agent": ’Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit
-/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36’}
-response = requests.get(url, headers=headers)
-```
-
-User-Agent是浏览器标识信息。伪装浏览器的方法是最简单的反反爬措施之一。
 
 爬虫常用的请求头：
 
@@ -32,7 +32,14 @@ User-Agent                  (浏览器名称)
 Referer                     (页面跳转处)
 Cookie                      (Cookie)
 Authorization               (用于表示HTTP协议中需要认证资源的认证信息，如前边web课程中用于jwt认证)
+```
 
+* 带 headers 的请求
+
+```
+headers = {"user-agent": ’Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit
+/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36’}
+response = requests.get(url, headers=headers)
 ```
 
 * 带参数的请求
@@ -40,9 +47,8 @@ Authorization               (用于表示HTTP协议中需要认证资源的认�
 ```
 kw = {’wd’: ’python’}
 response = requests.get(url, headers=headers, params=kw)
-```
-
 等价于访问 ’https://www.baidu.com/s?wd=python’
+```
 
 * 带代理的请求
 
@@ -80,13 +86,10 @@ response = requests.get("https://fanyi.baidu.com/", cookies=cookie_jar)
 
 ### 反爬措施：
 
-验证码
-
-验证请求头
-
-JS渲染页面：模拟javascript或抓ajax本身
-
-基于请求频率或总请求数量封ip
+* 验证码
+* 验证请求头: User-Agent是浏览器标识信息。伪装浏览器的方法是最简单的反反爬措施之一。
+* JS渲染页面：模拟javascript或抓ajax本身
+* 基于请求频率或总请求数量封ip
 
 ### Session会话
 
@@ -116,4 +119,22 @@ print(resp.request.headers)
 print(resp.cookies)
 ```
 
+### 通用爬虫框架
+
+```
+import requests
+
+url = "http://www.baidu.com"
+
+try:
+  r = requests.get(url)
+  r.raise_for_status()
+  r.enconding = r.apparent_encoding
+  
+  print(r.text)
+
+except Exception as e:
+  print("爬取失败")
+  print(e)
+```
 
