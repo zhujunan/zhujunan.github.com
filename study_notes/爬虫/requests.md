@@ -61,11 +61,11 @@ proxies = {
 requests.get("http://example.org", proxies=proxies)
 ```
 
-### cookies
+### Cookies
 
 * 获取cookies
 
-response.cookies
+cookie = login_response.cookies
 
 * 发送cookies
 
@@ -93,7 +93,11 @@ response = requests.get("https://fanyi.baidu.com/", cookies=cookie_jar)
 
 ### Session会话
 
-session对象能够帮我们跨请求保持某些参数，也会在同一个session实例发出的所有请求之间保持cookies。为了保持会话的连续，我们最好的办法是先创建一个session对象，用其打开一个url, 而不是直接使用requests.get方法打开一个url。每当我们使用这个session对象重新打开一个url时，请求头都会带上首次产生的cookie，实现了会话的延续。
+session对象能够帮我们跨请求保持某些参数，也会在同一个session实例发出的所有请求之间保持cookies。
+
+为了保持会话的连续，我们最好的办法是先创建一个session对象，用其打开一个url, 而不是直接使用requests.get方法打开一个url。
+
+每当我们使用这个session对象重新打开一个url时，请求头都会带上首次产生的cookie，实现了会话的延续。
 
 ```
 import requests
