@@ -56,13 +56,6 @@ var hurtInterval = 0.65;
 # private Vector2 mouseDire = Vector2.down;
 # private Vector2 movement;
 
-# 获取物体
-# private Camera cam;
-# public GameObject playerWeapon;
-# public GameObject playerCover;
-# public TextMeshProUGUI healthText;
-# public Image healthBar;
-
 # private Rigidbody2D rb;
 # private Transform transf;
 # private Animator playerAni;
@@ -71,74 +64,88 @@ var hurtInterval = 0.65;
 
 enum{IDLE,MOVE,ATTACK,HURT,DIE}
 
-
-
-#@onready var hurtbox = $Hurtbox
-
-
 func get_vector_to_mouse():
 	var character_position = get_position()
-	var mouse_position = get_viewport().get_mouse_position()
-	var local_mouse_position = get_tree().get_root().to_local(mouse_position)
-	var vector_to_mouse = local_mouse_position - character_position
-	return vector_to_mouse
+	var mouse_position = get_global_mouse_position()
+	var vector_to_mouse = mouse_position - character_position
+	
+	var direction = Vector2.ZERO
+	if abs(vector_to_mouse.x) >= abs(vector_to_mouse.y):
+		if vector_to_mouse.x > 0:
+			direction = Vector2.RIGHT
+		elif vector_to_mouse.x < 0:
+			direction = Vector2.LEFT
+	else:
+		if vector_to_mouse.y > 0:
+			direction = Vector2.UP
+		elif vector_to_mouse.y < 0:
+			direction = Vector2.DOWN
+			
+	return direction
+
+func change_face():
+	if face_vector.x < 0 and not face_left:
+		scale.x = -scale.x
+		face_left = true
+	elif face_vector.x > 0 and face_left:
+		scale.x = -scale.x
+		face_left = false
 
 func _ready() -> void:
-	change_state_ani(IDLE,"Idle")
+	change_state_ani(IDLE,"Idle",Vector2.ZERO)
 	animationTree.active = true
 
 func _physics_process(delta):
-
 	if character_state == IDLE or MOVE:
 		check_item()
 		check_attack()
 		if character_state != ATTACK:
 			check_move_idle(delta)
-
 	change_face()
 
+# 待完善
 func check_item():
 	pass
 
-# 待完善
 func check_attack():
 	if Input.is_action_pressed("input_normal_attack"):
-		change_state_ani(ATTACK,"Attack")
-		physical_attack()
+		physical_attack(1)
 	elif  Input.is_action_pressed("input_special_attack"):
-		change_state_ani(ATTACK,"Attack")
-		physical_attack()
+		physical_attack(2)
 	elif Input.is_action_pressed("input_magic_attack"):
-		change_state_ani(ATTACK,"Attack")
-		magical_attack()
+		magical_attack(1)
 	elif Input.is_action_pressed("input_special_magic"):
-		change_state_ani(ATTACK,"Attack")
-		magical_attack()
+		magical_attack(2)
 
-func change_state_ani(new_state, new_ani):
-	if new_state == character_state:
+func change_state_ani(new_state, new_ani,new_face_vector):
+	if new_state == character_state and new_face_vector == face_vector:
 		return
-	character_state= new_state
+	character_state = new_state
+	face_vector = new_face_vector
 	var anitreeblend = "parameters/"+ new_ani +"/blend_position"
 	animationTree.set(anitreeblend, face_vector)
 	animationState.travel(new_ani)
 
+# 检查并执行move或idle操作
 func check_move_idle(delta):
 	var move_vector = Input.get_vector("ui_left","ui_right","ui_up","ui_down")
 	if move_vector != Vector2.ZERO:
 		velocity = move_vector * MOVE_SPEED * delta
-		face_vector = move_vector
 		move_and_slide()
-		change_state_ani(MOVE,"Walk")
-	elif character_state == MOVE:
-		change_state_ani(IDLE,"Idle")
-
+		change_state_ani(MOVE,"Walk",move_vector)
+	# elif character_state == MOVE:
+	else:
+		change_state_ani(IDLE,"Idle",get_vector_to_mouse())
+	
+# 待完善
 func physical_attack(mode=1):
-	pass
+	change_state_ani(ATTACK,"Jab",get_vector_to_mouse())
 
+# 待完善
 func magical_attack(mode=1):
 	pass
 
+# 待完善
 func hurt(life):
 	emit_signal('life_changed',life)
 
@@ -155,22 +162,12 @@ func hurt(life):
 	# 	emit_signal('dead')
 		hide()
 
-
-
-	change_state_ani(HURT,"Hurt")
+	change_state_ani(HURT,"Hurt",face_vector)
 
 func hurt_interval_waiter():
+	# await ToSignal(get_tree().create_timer(hurtInterval), "timeout")
 	pass
-	# yield(get_tree().create_timer(hurtInterval), "timeout")
-
-func change_face():
-	if face_vector.x < 0 and not face_left:
-		scale.x = -scale.x
-		face_left = true
-	elif face_vector.x > 0 and face_left:
-		scale.x = -scale.x
-		face_left = false
-
+	
 #func _on_Hurtbox_area_entered(area):
 #	stats.health -= area.damage
 #	hurtbox.start_invincibility(0.6)
@@ -178,6 +175,4 @@ func change_face():
 #	var playerHurtSound = PlayerHurtSound.instance()
 #	get_tree().current_scene.add_child(playerHurtSound)
 
-
-# updatemouseDire() idle 状态，根据鼠标方向调整位置
 # updateWeaponType（）idle 状态，获取input
