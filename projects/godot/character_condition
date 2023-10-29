@@ -1,0 +1,41 @@
+extends Node2D
+
+enum character_condition {IDLE,MOVE,ATTACK,HURT,DIE}
+
+var _character_act : Node2D
+
+func _ready():
+	_character_act = get_parent().get_node("CharacterAct")
+
+
+func _process(delta):
+	_character_act.change_ani
+
+func change_condition(new_condition:character_condition):
+	if character_state == IDLE or MOVE:
+	check_attack()
+	if character_state != ATTACK:
+		check_move_idle(delta)
+	
+func check_attack():
+	if Input.is_action_pressed("input_normal_attack"):
+		physical_attack(1)
+	elif  Input.is_action_pressed("input_special_attack"):
+		physical_attack(2)
+	elif Input.is_action_pressed("input_magic_attack"):
+		magical_attack(1)
+	elif Input.is_action_pressed("input_special_magic"):
+		magical_attack(2)
+
+
+# 检查并执行move或idle操作
+func check_move_idle(delta):
+	var move_vector = Input.get_vector("ui_left","ui_right","ui_up","ui_down")
+	if move_vector != Vector2.ZERO:
+		velocity = move_vector * MOVE_SPEED * delta
+		move_and_slide()
+		change_state_ani(MOVE,"Walk",move_vector)
+	# elif character_state == MOVE:
+	else:
+		change_state_ani(IDLE,"Idle",get_vector_to_mouse())
+	
