@@ -1,0 +1,147 @@
+From simple to complex
+Let’s look at some code examples from a very basic Pong-style game my team made for my Unite Berlin talk.  As you can see from the image above, there are two paddles and four walls–at the top and bottom, and left and right–some game logic and the score UI. There’s a simple script on the paddle as well as for the walls.
+
+This example is based on a few key principles: 
+
+One “thing” = one Prefab
+The custom logic for one “thing” = one MonoBehavior
+An application = a scene containing the interlinked Prefabs
+Those principles work for a very simple project such as this, but we’ll have to change the structure if we want this to grow. So, what are the strategies that we can use to organize the code?
+
+How to architect code as your project scales_Component Parameters
+Instances, Prefabs and ScriptableObjects
+Firstly, let’s clear away confusion about the differences between instances, Prefabs and ScriptableObjects. Above is the Paddle Component on Player 1’s Paddle GameObject, viewed in the Inspector:
+
+We can see that there are three parameters on it. However, nothing in this view gives me an indication of what the underlying code expects of me. 
+
+Does it make sense for me to change the Input Axis on the left paddle by changing it on the instance, or should I be doing that in the Prefab? I presume that the input axis is different for both players, so it probably should be changed on the instance. What about Movement Speed Scale? Is that something I should change on the instance or on the Prefab? 
+
+Let's look at the code that represents the Paddle Component.
+
+How to architect code as your project scales_Parameters in code
+Parameters in a simple code example
+If we stop and think for a bit, we will realize that the different parameters are being used in different ways in our program. We ought to change the InputAxisName individually for each player: MovementSpeedScaleFactor and PositionScale should be shared by both players. Here's a strategy that can guide you in when to use instances, Prefabs and ScriptableObjects:
+
+Do you need something only once? Create a Prefab, then instantiate.
+Do you need something multiple times, possibly with some instance-specific modifications? Then you can create a Prefab, instantiate it, and override some settings.
+Do you want to ensure the same setting across multiple instances? Then create a ScriptableObject and source data from there instead. 
+See how we use ScriptableObjects with our Paddle Component in the next code example. 
+
+How to architect code as your project scales_using ScriptableObjects
+Using ScriptableObjects
+Since we have moved these settings to a ScriptableObject of type PaddleData, then we just have a reference to that PaddleData in our Paddle Component. What we end up with, in the Inspector, are two items: a PaddleData, and two Paddle instances. You can still change the axis name and which packet of shared settings each individual paddle is pointing to. The new structure allows you to see the intent behind the different settings more easily.
+
+How to architect code as your project scales_single responsibility principle
+Splitting up large MonoBehaviors
+If this was a game in actual development, you would see the individual MonoBehaviors grow larger and larger. Let’s see how we can split them up by working from what’s called the Single Responsibility Principle, which stipulates that each class should handle one single thing. If applied correctly you should be able to give short answers to the questions, “what does a particular class do?” as well as “what does it not do?” This makes it easy for every developer on your team to understand what the individual classes do. It’s a principle that you can apply to a code base of any size. Let’s look at a simple example as shown in the image above. 
+
+This shows the code for a ball. It doesn’t look like much, but on closer inspection, we see that the ball has a velocity that is used both by the designer to set the initial velocity vector of the ball, and by the homemade physics simulation to keep track of what the current velocity of the ball is.
+
+We are reusing the same variable for two slightly different purposes. As soon as the ball starts moving, the information about initial velocity is lost.
+
+The homemade physics simulation is not just the movement in FixedUpdate(); it also encompasses the reaction when the ball hits a wall. 
+
+Deep within the OnTriggerEnter() callback is a Destroy() operation. That is where the trigger logic deletes its own GameObject. In large code bases it is rare to allow entities to delete themselves; the tendency is instead to have owners delete things that they own. 
+
+There's an opportunity here to break things up into smaller parts. There are a number of different types of responsibilities in these classes–game logic, input handling, physics simulations, presentations and more. 
+
+Here are ways to create those smaller parts:
+
+The general game logic, input handling, physics simulation and presentation could reside within MonoBehaviors, ScriptableObjects or raw C# classes. 
+For exposing parameters in the Inspector, MonoBehaviors or ScriptableObjects can be used.
+Engine event handlers, and the management of a GameObject’s lifetime, need to reside within MonoBehaviors. 
+I think that for many games, it’s worthwhile to get as much code as possible out of MonoBehaviors. One way of doing that is using ScriptableObjects, and there are already some great resources out there on this method. 
+
+How to architect code as your project scales_move monobehaviors to C-sharp classes
+From MonoBehaviors to regular C# classes
+Moving MonoBehaviors to regular C# classes is another method to look at, but what are the benefits of this?
+
+Regular C# classes have better language facilities than Unity’s own objects for breaking down code into small, composable chunks. And, regular C# code can be shared with native .NET code bases outside of Unity. 
+
+On the other hand, if you use regular C# classes, then the editor does not understand the objects, and cannot display them natively in the Inspector, and so on.
+
+With this method you want to split up the logic by type of responsibility. If we go back to the ball example, we’ve moved the simple physics simulation into a C# class that we call BallSimulation. The only job it has to do is physics integration and reacting whenever the ball hits something. 
+
+However, does it make sense for a ball simulation to make decisions based on what it actually hits? That sounds more like game logic. What we end up with is that Ball has a logic portion that controls the simulation in some ways, and the result of that simulation feeds back into the MonoBehavior. 
+
+If we look at the reorganized version above, one significant change we see is that the Destroy() operation is no longer buried many layers down. There are only a few clear areas of responsibility left in the MoneBehavior at this point. 
+
+There are more things that we can do to this. If you look at the position update logic in FixedUpdate(), we can see that the code needs to send in a position and then it returns a new position from there. The ball simulation does not really own the location of the ball; it runs a simulation tick based on the location of a ball that is provided, and then returns the result. 
+
+How to architect code as your project scales_using interfaces
+Using interfaces
+If we use interfaces then perhaps we can share a portion of that ball MonoBehavior with the simulation, just the parts that it needs (see image above).
+
+Let’s look at the code again. The Ball class implements a simple interface. The LocalPositionAdapter class makes it possible to hand a reference to the Ball object over to another class. We don’t hand the entire Ball object, only the LocalPositionAdapter aspect of it.
+
+BallLogic also needs to inform Ball when it is time to destroy the GameObject. Rather than returning a flag, Ball can provide a delegate to BallLogic. That is what the last marked line in the reorganized version does. This gives us a neat design: there is a lot of boilerplate logic, but each class has a narrowly defined purpose.
+
+By using these principles you can keep a one-person project well structured. 
+
+How to architect code as your project scales_software architecture
+Software architecture
+Let's look at software architecture solutions for slightly larger projects. If we use the example of the Ball game, once we start introducing more specific classes into the code–BallLogic, BallSimulation, etc–then we should be able to construct a hierarchy: 
+
+The MonoBehaviours have to know about everything else because they just wrap up all that other logic, but simulation pieces of the game don't necessarily need to know about how the logic works. They just run a simulation. Sometimes, logic feeds in signals to the simulation, and the simulation reacts accordingly.
+
+It is beneficial to handle input in a separate, self-contained place. That is where input events are generated and then fed into the logic. Whatever happens next is up to the simulation. 
+
+This works well for input and simulation. However, you are likely going to run into problems with anything that has to do with presentation, for example, logic that spawns special effects, updating your scoring counters, and so on.
+
+Logic and presentation
+The presentation needs to know what’s going on in other systems but it does not need to have full access to all of those systems. If possible, try to separate logic and presentation. Try to get to the point where you can run your code base in two modes: logic only and logic plus presentation.
+
+Sometimes you will need to connect logic and presentation so that presentation is updated at the right times. Still, the goal should be to only provide presentation with what it needs to display correctly, and nothing more. This way, you will get a natural boundary between the two parts that will reduce the overall complexity of the game that you're building.
+
+Data-only classes and helper classes
+Sometimes it is fine to have a class that contains only data, without incorporating all of the logic and operations that can be done with that data into the same class. 
+
+It can also be a good idea to create classes that don’t own any data but contain functions whose purpose is to manipulate objects that are being given to it.
+
+Static methods
+What’s nice about a static method is that, if you presume that it doesn’t touch any global variables, then you can identify the scope of what the method potentially affects just by looking at what is passed in as arguments when calling the method. You don’t need to look at the implementation of the method at all. 
+
+This approach touches upon the field of functional programming. The core building block there is: you send something to a function, and the function returns a result or perhaps modifies one of the out parameters. Try this approach; you may find that you get less bugs compared to when you do classic object-oriented programming.
+
+Decoupling your objects
+You can also decouple objects by inserting glue logic between them. If we take the Pong-style example game again: how will the Ball logic and Score presentation talk to one another? Is the ball logic going to inform the score presentation when something happens with regards to the ball? Is the score logic going to query the Ball logic? They will need to talk to one another, somehow. 
+
+You can create a buffer object whose sole purpose is to provide storage area where the logic can write things and the presentation can read things. Or, you could put a queue in between them, so that the logic system can put things into the queue and the presentation will read what’s coming from the queue. 
+
+A good way to decouple logic from presentation as your game grows is with a message bus. The core principle with messaging is that neither a receiver nor a sender knows about the other party, but they are both aware of the message bus/system. So, a score presentation needs to know from the messaging system about any events that change the score. The game logic will then post events to the messaging system that indicate a change in points for a player. A good place to start if you want to decouple systems is by using UnityEvents - or write your own; then you can have separate buses for separate purposes.
+
+Loading Scenes
+Stop using LoadSceneMode.Single and use LoadSceneMode.Additive instead.
+
+Use explicit unloads when you want to unload a scene–sooner or later you will need to keep a few objects alive during a scene transition.
+
+Stop using DontDestroyOnLoad as well. It makes you lose control over an object’s lifetime. In fact, if you are loading things with LoadSceneMode.Additive, then you won’t need to use DontDestroyOnLoad. Put your long-living objects into a special long-living scene instead.
+
+A clean and controlled shutdown
+Another tip that has been useful on every single game I’ve worked on has been to support a clean and controlled shutdown.
+
+Make your application capable of releasing practically all resources before the application quits. If possible, no global variables should still be assigned and no GameObjects should be marked with DontDestroyOnLoad. 
+
+When you have a particular order for the way you shut things down, it will be easier for you to spot errors and find resource leaks. This will also leave your Unity Editor in a good state when you exit Play mode. Unity does not do a full domain reload when exiting play mode. If you have a clean shutdown, it is less likely that the editor or any kind of edit mode scripting will show weird behaviors after you have run your game in the editor.
+
+Reducing pain with scene file merge
+You can do this by using a version control system such as Git, Perforce or Plastic. Store all assets as text, and move objects out of scene files by making them into Prefabs. Finally, split scene files into multiple smaller scenes, but be aware that this might require extra tooling.
+
+Process automation for code tests
+If you are soon to be a team of, say, 10 or more people then you will need to do some work on process automation. 
+
+As a creative programmer you want to do the unique, careful work, and leave as much as possible of the repetitive parts to automation. 
+
+Start by writing tests for your code. Specifically, if you're moving things out of MonoBehaviours and into regular classes, then it is very straightforward to use a unit testing framework for building unit tests for both logic and simulation. It doesn't make sense everywhere, but it tends to make your code accessible to other programmers later on.
+
+Process automation for content tests
+Testing is not just about testing code. You also want to test your content. If you have content creators on your team, you will all be better off if they have a standardized way to quickly validate content that they create.
+
+Test logic–like validating a Prefab or validating some data which they've input through a custom editor–should be easily available to the content creators. If they can just click a button in the editor and get a quick validation, they will soon learn to appreciate that this saves them time. 
+
+The next step after this is to set up the Unity Test Runner so you get automatic retesting of things on a regular basis. You want to set it up as part of your build system, so that it also runs all your tests. A good practice is to set up notifications, so that when a problem does occur your teammates get a Slack or email notification.
+
+Creating automated playthroughs
+Automated playthroughs involve making an AI that can play your game and then log errors. Simply put, any error that your AI finds is one less you have to spend time finding! 
+
+In our case, we set up around 10 game clients on the same machine, with the lowest detail settings, and let all of them run. We watched them crashed and then looked at the logs. Every time one of these clients crashed was time saved for us where we did not have to play the game ourselves, or get someone else to do it, to find bugs. That meant that when we did actually play test the game ourselves and with other players we could focus on if the game was fun, where the visual glitches were, and so on.
