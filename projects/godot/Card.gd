@@ -44,7 +44,7 @@ func _ready() -> void:
 	$RecoveryTimer.wait_time = first_rocovery_time
 	init_card_function()
 	set_card()
-	$WorkTimer.start()
+	# $WorkTimer.start()
 
 ### =============================================================
 ### 基本功能
@@ -71,7 +71,7 @@ func health_change(hurt_damage : float) -> void:
 		$RecoveryTimer.wait_time = first_rocovery_time
 	elif recovery_value > 0 and $RecoveryTimer.is_stopped():
 		$RecoveryTimer.start()
-	
+
 func set_card() -> void:
 	var tile_pos_new : Vector2i = Vector2i(position / world.grid_size)
 	if tile_pos_new == tile_pos:
@@ -83,6 +83,8 @@ func set_card() -> void:
 		world.occupied_tile[tile_pos.x][tile_pos.y] = null
 		for other_card in world.get_round_card(tile_pos, 3):
 			other_card.all_function_activate()
+		for other_card in world.get_round_card(tile_pos_new, 3):
+			other_card.all_function_activate()
 	tile_pos = tile_pos_new
 	position = Vector2(tile_pos_new) * world.grid_size + world.grid_size/2
 	all_function_activate()
@@ -90,8 +92,11 @@ func set_card() -> void:
 
 func remove_card() -> void:
 	world.occupied_tile[tile_pos.x][tile_pos.y] = null
-	#! 卡牌消失动画
+    for other_card in world.get_round_card(tile_pos, 3):
+        other_card.all_function_activate()
+    #! 卡牌消失动画
 	queue_free()
+
 
 ### =============================================================
 ### 触发器
@@ -137,7 +142,7 @@ func init_card_function() -> void:
 			get_one_function(tmp_function)
 			function_num -= 1
 			break
-			
+
 	for i in range(function_num):
 		CardFunction.TileFunction.shuffle()
 		for tmp_function in CardFunction.TileFunction:
@@ -165,11 +170,11 @@ func all_function_activate() -> void:
 	health_now = max_health
 	work_value_now = 0
 	product_dict = {}
-	
+
 	for i in buff_list:
 		one_function_activate(i)
 	for i in effect_list:
-		one_function_activate(i)	
+		one_function_activate(i)
 	for i in work_list:
 		one_function_activate(i)
 
@@ -191,7 +196,7 @@ func one_function_activate(new_function) -> void:
 			return
 		if !new_function[2]:
 			product_num = 1
-			
+
 	if tmp_product_list[1] == "self":
 		if tmp_product_list[0] in ["max_health", "work_speed", "price", "work_view", "first_rocovery_time", "recovery_time", "recovery_value"]:
 			if tmp_product_list[2] is int:
@@ -217,16 +222,75 @@ func write_info() -> void:
 
 func work() -> void:
 	for tmp_product in product_dict:
-		if tmp_product[0] == "health_now":
+		if tmp_product == "health_now":
 			health_now += product_dict[tmp_product]
 		else:
-			world.Inventory[tmp_product[0]] = world.Inventory.get(tmp_product[0], 0) + product_dict[tmp_product]
-			var cloned_node = $BackGround/CardUI/ShowProduct/OneProduct.duplicate()
-			cloned_node.get_node("Pic").set_texture(load(ItemDict.ItemDict[tmp_product]))
-			cloned_node.get_node("Num").text = "+ %d" % [product_dict[tmp_product]]
-			add_child(cloned_node)
-			cloned_node.position = Vector2(-100, 30)
-			var tween = cloned_node.create_tween()
-			tween.tween_property(cloned_node, "position", Vector2(-90,-150), 1.0)
-			cloned_node.get_node("Timer").start()
-			
+			world.Inventory[tmp_product] = world.Inventory.get(tmp_product[0], 0) + product_dict[tmp_product]
+			show_product(tmp_product[0], product_dict[tmp_product])
+
+func show_product(new_product_name, new_product_num) -> void:
+    var cloned_node = $BackGround/CardUI/ShowProduct/OneProduct.duplicate()
+    cloned_node.get_node("Pic").set_texture(load(ItemDict.ItemDict[new_product_name]))
+    cloned_node.get_node("Num").text = "+ %d" % [new_product_num]
+    add_child(cloned_node)
+    cloned_node.position = Vector2(-100, 30)
+    var tween = cloned_node.create_tween()
+    tween.tween_property(cloned_node, "position", Vector2(-90,-150), 1.0)
+    cloned_node.get_node("Timer").start()
+
+# ================================================
+# ================================================
+# ================================================
+
+# 图标，初始稀有度，初始价格，血量，工作量，回收奖励.
+const CardDict = \
+{
+	"yew_forest" : [preload("res://Card/Nature/t_764.PNG"), 1, 3, 50, 15, {}, ],
+	"berry_bush_v0" : [preload("res://Card/Nature/t_986.PNG"), 1, 3, 50, {}, ],
+	"berry_bush" : [preload("res://Card/Nature/t_720.PNG"), 1, 3, 50, 15, {}, ],
+}
+
+func GetCardRecover(new_card_name : String):
+    return CardDict[new_card_name][5]
+
+func create_buildings
+
+
+
+
+
+
+
+func sell() -> void:
+    var recover_dict = CardDict.GetCardRecover(card_name)
+    for tmp_product in recover_dict:
+        world.Inventory[tmp_product] = world.Inventory.get(tmp_product, 0) + recover_dict[tmp_product]
+        show_product(tmp_product, recover_dict[tmp_product])
+
+func show_card_menu() -> void:
+    if group == 3:
+        $card_menu.occupy.visable = true
+    else:
+        $card_menu.occupy.visable = false
+
+    if group == 1:
+        $card_menu.harvest.visable = true
+    else:
+        $card_menu.harvest.visable = false
+
+    if group == 1:
+        $card_menu.merge.visable = true
+    else:
+        $card_menu.merge.visable = false
+
+    if group == 1:
+        $card_menu.upgrade.visable = true
+    else:
+        $card_menu.upgrade.visable = false
+
+    if group == 1:
+        $card_menu.sell.visable = true
+    else:
+        $card_menu.sell.visable = false
+
+    $card_menu.visable = true
