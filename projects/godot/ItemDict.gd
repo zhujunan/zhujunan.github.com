@@ -35,5 +35,7 @@ const ItemDict = \
 	"whet_stone":"res://Item/Sprite/Mineral/Whetstone.png",
 	"coal":"res://Item/Sprite/Mineral/Coal.png",
 	
+	"straw_berry":"res://Item/Sprite/Food/Strawberry.png",
+	
 	#  "":,
 }

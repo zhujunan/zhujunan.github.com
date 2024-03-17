@@ -16,7 +16,8 @@ var is_pressed : bool = false
 var select_card : Node2D = null
 var card_offset : Vector2
 
-var Inventory : Dictionary= {}
+var all_worker : int = 10
+var Inventory : Dictionary = {"worker":10}
 
 func _ready() -> void:
 	place_tile()
@@ -38,6 +39,17 @@ func show_message(new_message : String, new_level : int) -> void:
 
 func show_info(new_message : String) -> void:
 	$UI/InfoPanel/Info.text = new_message
+
+func store_change(item_name:String, change_num:int) -> void:
+	Inventory[item_name] = Inventory.get(item_name, 0) + change_num
+	if item_name == "worker":
+		$UI/ResourcePanels/Worker/Label.text = "%d / %d" % [Inventory["worker"], all_worker]
+	
+func save_game() -> void:
+	pass
+
+func load_game() -> void:
+	pass
 
 ### =============================================================
 ### 输入控制
@@ -87,12 +99,14 @@ func _unhandled_input(event)-> void:
 		elif event.button_index == 5:
 			main_camera.camera_zoom(-1)
 		elif event.pressed and event.button_index == 1:
+			$UI/CardSelectPanel.visible = false
 			Input.set_custom_mouse_cursor(custom_cursor_3, Input.CURSOR_ARROW)
 			is_pressed = true
 			if select_card:
 				grid.visible = true
 				card_offset = select_card.position - get_global_mouse_position()
 		elif !event.pressed and event.button_index == 1:
+			$UI/CardSelectPanel.visible = false       
 			if select_card:
 				grid.visible = false
 				Input.set_custom_mouse_cursor(custom_cursor_2, Input.CURSOR_ARROW)
@@ -100,6 +114,11 @@ func _unhandled_input(event)-> void:
 			else:
 				Input.set_custom_mouse_cursor(custom_cursor_1, Input.CURSOR_ARROW)
 			is_pressed = false
+		elif event.pressed and event.button_index == 2 and select_card:
+			select_card.update_select()
+			$UI/CardSelectPanel.visible = true
+			$UI/CardSelectPanel.position = get_viewport().get_mouse_position() + Vector2(20,20)
+
 	elif event is InputEventMouseMotion and is_pressed:
 		if select_card:
 			select_card.position = get_global_mouse_position() + card_offset
@@ -111,9 +130,13 @@ func _unhandled_input(event)-> void:
 		get_tree().quit()
 		pass
 
+func _input(event)-> void:
+	if event is InputEventMouseButton and !select_card:
+		$UI/CardSelectPanel.visible = false
+
 ### =============================================================
 ### 建筑控制
-		
+
 func init_occupied_tile()-> void:
 	for i in range(grid_num.x):
 		var inner_array : Array[Node2D] = []
@@ -181,11 +204,12 @@ func get_round_card(new_tile : Vector2i, get_range : int, card_type: String = ""
 	return round_card_list
 
 ### =============================================================
-func find_group_tile(new_tile:Vector2i, group:int, min_interval:int, max_interval:int) -> Vector2i:
-	if occupied_tile[new_tile.x][new_tile.y]:
-		return Vector2i.ZERO
-	else:
-		return Vector2i.ONE
+
+#func find_group_tile(new_tile:Vector2i, group:int, min_interval:int, max_interval:int) -> Vector2i:
+	#if occupied_tile[new_tile.x][new_tile.y]:
+		#return Vector2i.ZERO
+	#else:
+		#return Vector2i.ONE
 
 func auto_create_card() -> void:
 	var min_interval : int = 1
@@ -237,11 +261,7 @@ func auto_create_card() -> void:
 		else:
 			show_message("场地已满，无法生成新卡牌", 3)
 			return
-			
-	var card : PackedScene = load("res://Scene/NatureCard.tscn")
-	var instance = card.instantiate()
-	instance.card_name = "yew_forest"
+
+	var instance = CardCreator.create_tile_card("berry_bush_v0")
 	instance.position = Vector2(target_tiles.pick_random()) * grid_size + grid_size/2
 	all_cards.add_child(instance)
-	
-
